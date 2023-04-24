@@ -1,19 +1,125 @@
 `define MAXPATTERNS 	2000
-`define MAXCOUNT	57	
+`define MAXCOUNT	57
 
 module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
                      cut_sdi,cut_sdo);
+  /* Shifts values on every positive edge */
   input          clk;
+  /* When set to 1 with bistmode, starts bist hardware */
   input          rst;
+  /* When set to 1 with rst, starts bist hardware */
   input          bistmode;
+  /* Signals when the bist hardware is complete */
   output         bistdone;
+  /* Set to 1 if CUT passed the test; set to 0 if CUT failed the test. 
+  In conjunction with bistdone */
   output         bistpass;
+  /* If set to 1, shift new values into scan-chain. Otherwise don't. */
   output         cut_scanmode;
+  /* If scanmode set to 1, shift these new values into the CUT. Otherwise, CUT runs as normal. */
   output [3:0]   cut_sdi;
+  /* Take input from CUT outputs to run through bist hardware */
   input  [3:0]   cut_sdo;
 
+  //For starting/stopping system
+  reg startState;
+  initial startState = 0;
+  wire startWire = startState;
+  reg [10:0] endReg;
+  initial endReg = 0;
+  wire endWire = endReg;
+  //For both MISR and LFSR
+  reg [5:0] countReg;
+  initial countReg = 0;
+  wire countWire = countReg;
+  //For LFSR
+  //LFSR: initialization
+  reg [4:0] LFSRinitReg;
+  initial LFSRinitReg = 0;
+  wire LFSRinitWire = LFSRinitReg;
+  //LFSR: regular operation
+  integer i;
+  reg LFSRreg [15:0];
+  initial for(i = 0; i < 16; i = i + 1) LFSRreg[i] = 0;
+  wire [15:0] LFSRwires = {LFSRreg[14], LFSRreg[13], LFSRreg[12], LFSRreg[11], LFSRreg[10], LFSRreg[9], LFSRreg[8],
+  LFSRreg[7], LFSRreg[6], LFSRreg[5], LFSRreg[4] ^ LFSRreg[15], LFSRreg[3] ^ LFSRreg[15], 
+  LFSRreg[2] ^ LFSRreg[15], LFSRreg[1], LFSRreg[0], LFSRreg[15] ^ 1};
+  assign cut_sdi = {LFSRreg[0], LFSRreg[3], LFSRreg[4], LFSRreg[5]};
+  reg cut_scanmodeReg;
+  initial cut_scanmodeReg = 0;
+  assign cut_scanmode = cut_scanmodeReg;
+  //For MISR
+  reg sampReg;
+  initial sampReg = 0;
+  wire sampWire = sampReg;
+  integer j;
+  reg MISRreg [15:0];
+  initial for(i = 0; i < 16; i = i + 1) MISRreg[i] = 0;
+  wire [15:0] MISRwires = {MISRreg[14], MISRreg[13], MISRreg[12], MISRreg[11], MISRreg[10], MISRreg[9], MISRreg[8],
+  MISRreg[7], MISRreg[6], MISRreg[5], MISRreg[4] ^ MISRreg[15] ^ cut_sdo[0], MISRreg[3] ^ MISRreg[15] ^ cut_sdo[1], 
+  MISRreg[2] ^ MISRreg[15] ^ cut_sdo[2], MISRreg[1], MISRreg[0], MISRreg[15] ^ cut_sdo[3]};
+  reg [15:0] MISRoutputReg;
+  initial MISRoutputReg = 0;
+  wire MISRoutputWire = MISRoutputReg;
+  reg [15:0] faultFreeReg;
+  reg bistpass_reg;
+  initial bistpass_reg = 0;
+  assign bistpass = bistpass_reg;
+  reg bistdone_reg;
+  initial bistdone_reg = 0;
+  assign bistdone = bistdone_reg;
+  //hardcoded fault-free value
+  initial faultFreeReg = 16'b0101010101010101;
+  wire faultFreeWire = faultFreeReg;
 
-  // Add your code here
+  always@(*) begin
+    //system start or end?
+    if((rst & bistmode) | bistdone) begin
+      startState = (rst & bistmode) | (startWire ^ 1);
+    end
+  end
+  
+  always@(posedge clk) begin
+    //initialize LFSR (16 moves in)
+    if(LFSRinitWire < 16) begin
+      for(i = 0; i < 16; i = i + 1) LFSRreg[i] = LFSRwires[i];
+      LFSRinitReg = LFSRinitWire + 1;
+    end
+
+    if (LFSRinitWire >= 16) begin
+      if(countWire == 0) begin
+        cut_scanmodeReg = 1;
+        countReg = countWire + 1;
+      end
+      else if(countWire == 57) begin
+        countReg = 0;
+      end
+      else begin
+        cut_scanmodeReg = 0;
+        sampReg = 1;
+        countReg = countWire + 1;
+      end
+    end
+
+    //start system
+    if(startWire) begin
+      if(cut_scanmode) begin
+        //LFSR
+        for(i = 0; i < 16; i = i + 1) LFSRreg[i] = LFSRwires[i];
+        if(sampWire == 1) begin
+          //MISR
+          for(i = 0; i < 16; i = i + 1) MISRreg[i] = MISRwires[i];
+          endReg = endWire + 1;
+          if(endWire == 2000) begin
+            MISRoutputReg = MISRwires;
+            if (MISRoutputWire == faultFreeWire) bistpass_reg = 1;
+            else bistpass_reg = 0;
+            bistdone_reg = 1;
+          end
+        end
+      end
+    end
+  end
 		
 endmodule  
 

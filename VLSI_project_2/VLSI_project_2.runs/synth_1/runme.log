@@ -1,0 +1,37 @@
+
+*** Running vivado
+    with args -log chip.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source chip.tcl
+
+
+
+****** Vivado v2022.1 (64-bit)
+  **** SW Build 3526262 on Mon Apr 18 15:48:16 MDT 2022
+  **** IP Build 3524634 on Mon Apr 18 20:55:01 MDT 2022
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+
+source chip.tcl -notrace
+create_project: Time (s): cpu = 00:00:03 ; elapsed = 00:00:06 . Memory (MB): peak = 1272.469 ; gain = 0.000
+Command: synth_design -top chip -part xc7a35tcpg236-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7a35t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7a35t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 28292
+ERROR: [Synth 8-1718] cannot assign a packed type to an unpacked type [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:57]
+ERROR: [Synth 8-2577] procedural assignment to a non-register cut_scanmode is not permitted, left-hand side should be reg/integer/time/genvar [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:82]
+ERROR: [Synth 8-2577] procedural assignment to a non-register cut_scanmode is not permitted, left-hand side should be reg/integer/time/genvar [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:89]
+ERROR: [Synth 8-9210] cannot access memory 'MISRwires' directly [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:105]
+ERROR: [Synth 8-1718] cannot assign an unpacked type to a packed type [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:105]
+ERROR: [Synth 8-2833] unpacked value/target cannot be used in assignment [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:105]
+ERROR: [Synth 8-2577] procedural assignment to a non-register bistpass is not permitted, left-hand side should be reg/integer/time/genvar [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:106]
+ERROR: [Synth 8-2577] procedural assignment to a non-register bistpass is not permitted, left-hand side should be reg/integer/time/genvar [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:107]
+ERROR: [Synth 8-2577] procedural assignment to a non-register bistdone is not permitted, left-hand side should be reg/integer/time/genvar [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:108]
+INFO: [Synth 8-8750] module 'bist_hardware' ignored due to previous errors [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:115]
+INFO: [Synth 8-8750] module 'chip' ignored due to previous errors [C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v:150]
+Failed to read verilog 'C:/Users/ethan/Desktop/VLSI_Testing/Proj2_VLSI/project.v'
+INFO: [Common 17-83] Releasing license: Synthesis
+7 Infos, 0 Warnings, 0 Critical Warnings and 10 Errors encountered.
+synth_design failed
+ERROR: [Common 17-69] Command failed: Vivado Synthesis failed
+INFO: [Common 17-206] Exiting Vivado at Sun Apr 23 22:35:22 2023...
