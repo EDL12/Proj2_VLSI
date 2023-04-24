@@ -21,22 +21,24 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
   /* Take input from CUT outputs to run through bist hardware */
   input  [3:0]   cut_sdo;
 
+  //initial $display ("This is the start");
+
   //For starting/stopping system
   reg startState;
   initial startState = 0;
   wire startWire = startState;
   reg [10:0] endReg;
   initial endReg = 0;
-  wire endWire = endReg;
+  wire [10:0] endWire = endReg;
   //For both MISR and LFSR
   reg [5:0] countReg;
   initial countReg = 0;
-  wire countWire = countReg;
+  wire [5:0] countWire = countReg;
   //For LFSR
   //LFSR: initialization
   reg [4:0] LFSRinitReg;
   initial LFSRinitReg = 0;
-  wire LFSRinitWire = LFSRinitReg;
+  wire [4:0] LFSRinitWire = LFSRinitReg;
   //LFSR: regular operation
   integer i;
   reg LFSRreg [15:0];
@@ -60,8 +62,7 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
   MISRreg[2] ^ MISRreg[15] ^ cut_sdo[2], MISRreg[1], MISRreg[0], MISRreg[15] ^ cut_sdo[3]};
   reg [15:0] MISRoutputReg;
   initial MISRoutputReg = 0;
-  wire MISRoutputWire = MISRoutputReg;
-  reg [15:0] faultFreeReg;
+  wire [15:0] MISRoutputWire = MISRoutputReg;
   reg bistpass_reg;
   initial bistpass_reg = 0;
   assign bistpass = bistpass_reg;
@@ -69,40 +70,45 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
   initial bistdone_reg = 0;
   assign bistdone = bistdone_reg;
   //hardcoded fault-free value
-  initial faultFreeReg = 16'b0101010101010101;
-  wire faultFreeWire = faultFreeReg;
+  reg firstPassReg;
+  initial firstPassReg = 0;
+  wire firstPassWire = firstPassReg;
+  reg [15:0] faultFreeReg;
+  initial faultFreeReg = 0;
+  wire [15:0] faultFreeWire = faultFreeReg;
 
   always@(*) begin
     //system start or end?
     if((rst & bistmode) | bistdone) begin
       startState = (rst & bistmode) | (startWire ^ 1);
+      //$display("startState value = %d", startState);
     end
   end
   
   always@(posedge clk) begin
     //initialize LFSR (16 moves in)
     if(LFSRinitWire < 16) begin
+      //$display("LFSRinitWire value = %d", LFSRinitWire);
       for(i = 0; i < 16; i = i + 1) LFSRreg[i] = LFSRwires[i];
       LFSRinitReg = LFSRinitWire + 1;
     end
 
-    if (LFSRinitWire >= 16) begin
-      if(countWire == 0) begin
-        cut_scanmodeReg = 1;
-        countReg = countWire + 1;
-      end
-      else if(countWire == 57) begin
-        countReg = 0;
-      end
-      else begin
-        cut_scanmodeReg = 0;
-        sampReg = 1;
-        countReg = countWire + 1;
-      end
-    end
-
     //start system
     if(startWire) begin
+      if (LFSRinitWire == 16) begin
+        if(countWire == 0) begin
+          cut_scanmodeReg = 1;
+          countReg = countWire + 1;
+        end
+        else if(countWire == 57) begin
+          countReg = 0;
+        end
+        else begin
+          cut_scanmodeReg = 0;
+          sampReg = 1;
+          countReg = countWire + 1;
+        end
+      end
       if(cut_scanmode) begin
         //LFSR
         for(i = 0; i < 16; i = i + 1) LFSRreg[i] = LFSRwires[i];
@@ -110,8 +116,13 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
           //MISR
           for(i = 0; i < 16; i = i + 1) MISRreg[i] = MISRwires[i];
           endReg = endWire + 1;
+          //$display ("endWire value = %d", endWire);
           if(endWire == 2000) begin
             MISRoutputReg = MISRwires;
+            if(firstPassWire == 0) begin 
+              faultFreeReg = MISRoutputWire;
+              firstPassReg = 1;
+            end
             if (MISRoutputWire == faultFreeWire) bistpass_reg = 1;
             else bistpass_reg = 0;
             bistdone_reg = 1;
@@ -120,7 +131,9 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
       end
     end
   end
-		
+	
+  //initial $display ("This is the end");
+
 endmodule  
 
 
