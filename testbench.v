@@ -118,6 +118,9 @@ initial begin
    $write( "\nInjecting No Fault into CUT:  Fault-Free BIST Simulation\n" );
    dobist;
 
+   $write( "\nInjecting No Fault into CUT:  Fault-Free BIST Simulation\n" );
+   dobist;
+
    force testchip.circuit.II282 = 1;
    $write( "\nInjecting Fault into CUT:  testchip.circuit.II282 = 1\n" );
    faults = faults+1;

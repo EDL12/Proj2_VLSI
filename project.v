@@ -1,6 +1,8 @@
 `define MAXPATTERNS 	2000
 `define MAXCOUNT	57
 
+//Ethan Litchauer and Harsh Bakadia
+
 module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
                      cut_sdi,cut_sdo);
   /* Shifts values on every positive edge */
@@ -43,10 +45,36 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
   integer i;
   reg LFSRreg [15:0];
   initial for(i = 0; i < 16; i = i + 1) LFSRreg[i] = 0;
+  
+  /*
   wire [15:0] LFSRwires = {LFSRreg[14], LFSRreg[13], LFSRreg[12], LFSRreg[11], LFSRreg[10], LFSRreg[9], LFSRreg[8],
   LFSRreg[7], LFSRreg[6], LFSRreg[5], LFSRreg[4] ^ LFSRreg[15], LFSRreg[3] ^ LFSRreg[15], 
-  LFSRreg[2] ^ LFSRreg[15], LFSRreg[1], LFSRreg[0], LFSRreg[15] ^ 1};
-  assign cut_sdi = {LFSRreg[0], LFSRreg[3], LFSRreg[4], LFSRreg[5]};
+  LFSRreg[2] ^ LFSRreg[15], LFSRreg[1], LFSRreg[0], LFSRreg[15] ^ 1};*/
+  
+  wire LFSRwires15 = LFSRreg[14];
+  wire LFSRwires14 = LFSRreg[13];
+  wire LFSRwires13 = LFSRreg[12];
+  wire LFSRwires12 = LFSRreg[11];
+  wire LFSRwires11 = LFSRreg[10];
+  wire LFSRwires10 = LFSRreg[9];
+  wire LFSRwires9 = LFSRreg[8];
+  wire LFSRwires8 = LFSRreg[7];
+  wire LFSRwires7 = LFSRreg[6];
+  wire LFSRwires6 = LFSRreg[5];
+  wire LFSRwires5 = LFSRreg[4] ^ LFSRreg[15];
+  wire LFSRwires4 = LFSRreg[3] ^ LFSRreg[15];
+  wire LFSRwires3 = LFSRreg[2] ^ LFSRreg[15];
+  wire LFSRwires2 = LFSRreg[1];
+  wire LFSRwires1 = LFSRreg[0];
+  wire LFSRwires0 = LFSRreg[15] ^ 1;
+
+  /*
+  wire LFSRwires14 = {LFSRreg[15] ^ 1, LFSRreg[0], LFSRreg[1], LFSRreg[2] ^ LFSRreg[15], 
+  LFSRreg[3] ^ LFSRreg[15], LFSRreg[4] ^ LFSRreg[15], LFSRreg[5], LFSRreg[6], LFSRreg[7], LFSRreg[8], 
+  LFSRreg[9], LFSRreg[10], LFSRreg[11], LFSRreg[12], LFSRreg[13], LFSRreg[14]};*/
+  reg [3:0] cut_sdi_reg;
+  initial cut_sdi_reg = 0;
+  assign cut_sdi = cut_sdi_reg;
   reg cut_scanmodeReg;
   initial cut_scanmodeReg = 0;
   assign cut_scanmode = cut_scanmodeReg;
@@ -54,12 +82,35 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
   reg sampReg;
   initial sampReg = 0;
   wire sampWire = sampReg;
-  integer j;
   reg MISRreg [15:0];
   initial for(i = 0; i < 16; i = i + 1) MISRreg[i] = 0;
+
+  /*
   wire [15:0] MISRwires = {MISRreg[14], MISRreg[13], MISRreg[12], MISRreg[11], MISRreg[10], MISRreg[9], MISRreg[8],
   MISRreg[7], MISRreg[6], MISRreg[5], MISRreg[4] ^ MISRreg[15] ^ cut_sdo[0], MISRreg[3] ^ MISRreg[15] ^ cut_sdo[1], 
-  MISRreg[2] ^ MISRreg[15] ^ cut_sdo[2], MISRreg[1], MISRreg[0], MISRreg[15] ^ cut_sdo[3]};
+  MISRreg[2] ^ MISRreg[15] ^ cut_sdo[2], MISRreg[1], MISRreg[0], MISRreg[15] ^ cut_sdo[3]};*/
+  
+  /*wire [15:0] MISRwires = {MISRreg[15] ^ cut_sdo[3], MISRreg[0], MISRreg[1], MISRreg[2] ^ MISRreg[15] ^ cut_sdo[2], 
+  MISRreg[3] ^ MISRreg[15] ^ cut_sdo[1], MISRreg[4] ^ MISRreg[15] ^ cut_sdo[0], MISRreg[5], MISRreg[6], MISRreg[7], 
+  MISRreg[8], MISRreg[9], MISRreg[10], MISRreg[11], MISRreg[12], MISRreg[13], MISRreg[14]};*/
+
+  wire MISRwires15 = MISRreg[14];
+  wire MISRwires14 = MISRreg[13];
+  wire MISRwires13 = MISRreg[12];
+  wire MISRwires12 = MISRreg[11];
+  wire MISRwires11 = MISRreg[10];
+  wire MISRwires10 = MISRreg[9];
+  wire MISRwires9 = MISRreg[8];
+  wire MISRwires8 = MISRreg[7];
+  wire MISRwires7 = MISRreg[6];
+  wire MISRwires6 = MISRreg[5];
+  wire MISRwires5 = MISRreg[4] ^ MISRreg[15] ^ cut_sdo[0];
+  wire MISRwires4 = MISRreg[3] ^ MISRreg[15] ^ cut_sdo[1];
+  wire MISRwires3 = MISRreg[2] ^ MISRreg[15] ^ cut_sdo[2];
+  wire MISRwires2 = MISRreg[1];
+  wire MISRwires1 = MISRreg[0];
+  wire MISRwires0 = MISRreg[15] ^ cut_sdo[3];
+
   reg [15:0] MISRoutputReg;
   initial MISRoutputReg = 0;
   wire [15:0] MISRoutputWire = MISRoutputReg;
@@ -76,12 +127,21 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
   reg [15:0] faultFreeReg;
   initial faultFreeReg = 0;
   wire [15:0] faultFreeWire = faultFreeReg;
+  reg satReg;
+  initial satReg = 0;
+  wire satWire = satReg;
 
   always@(*) begin
     //system start or end?
     if((rst & bistmode) | bistdone) begin
       startState = (rst & bistmode) | (startWire ^ 1);
-      //$display("startState value = %d", startState);
+      $display("startState value = %d", startState);
+      bistdone_reg = 0;
+
+      for(i = 0; i < 16; i = i + 1) $display("LFSRreg = %h", LFSRreg[i]);
+      for(i = 0; i < 16; i = i + 1) $display("MISRreg = %h", MISRreg[i]);
+      $display("cut_sdi = %h", cut_sdi);
+      $display("cut_sdo = %h", cut_sdo);
     end
   end
   
@@ -89,43 +149,121 @@ module bist_hardware(clk,rst,bistmode,bistdone,bistpass,cut_scanmode,
     //initialize LFSR (16 moves in)
     if(LFSRinitWire < 16) begin
       //$display("LFSRinitWire value = %d", LFSRinitWire);
-      for(i = 0; i < 16; i = i + 1) LFSRreg[i] = LFSRwires[i];
+
+      LFSRreg[0] = LFSRwires0;
+      LFSRreg[1] = LFSRwires1;
+      LFSRreg[2] = LFSRwires2;
+      LFSRreg[3] = LFSRwires3;
+      LFSRreg[4] = LFSRwires4;
+      LFSRreg[5] = LFSRwires5;
+      LFSRreg[6] = LFSRwires6;
+      LFSRreg[7] = LFSRwires7;
+      LFSRreg[8] = LFSRwires8;
+      LFSRreg[9] = LFSRwires9;
+      LFSRreg[10] = LFSRwires10;
+      LFSRreg[11] = LFSRwires11;
+      LFSRreg[12] = LFSRwires12;
+      LFSRreg[13] = LFSRwires13;
+      LFSRreg[14] = LFSRwires14;
+      LFSRreg[15] = LFSRwires15;
+
       LFSRinitReg = LFSRinitWire + 1;
     end
 
     //start system
     if(startWire) begin
       if (LFSRinitWire == 16) begin
-        if(countWire == 0) begin
-          cut_scanmodeReg = 1;
-          countReg = countWire + 1;
-        end
-        else if(countWire == 57) begin
+        if(countWire == 57) begin
+          #1 cut_scanmodeReg = 0;
           countReg = 0;
+          satReg = 1;
+          sampReg = 0;
         end
         else begin
-          cut_scanmodeReg = 0;
-          sampReg = 1;
+          if(satWire == 1) begin
+            #1 cut_scanmodeReg = 1;
+            sampReg = 1;
+            countReg = 57;
+            cut_sdi_reg = {LFSRreg[3], LFSRreg[6], LFSRreg[9], LFSRreg[11]};
+          end
+          else begin
+          #1 cut_scanmodeReg = 1;
           countReg = countWire + 1;
+          cut_sdi_reg = {LFSRreg[3], LFSRreg[6], LFSRreg[9], LFSRreg[11]};
+          end
         end
       end
+      
       if(cut_scanmode) begin
         //LFSR
-        for(i = 0; i < 16; i = i + 1) LFSRreg[i] = LFSRwires[i];
+        LFSRreg[0] = LFSRwires0;
+        LFSRreg[1] = LFSRwires1;
+        LFSRreg[2] = LFSRwires2;
+        LFSRreg[3] = LFSRwires3;
+        LFSRreg[4] = LFSRwires4;
+        LFSRreg[5] = LFSRwires5;
+        LFSRreg[6] = LFSRwires6;
+        LFSRreg[7] = LFSRwires7;
+        LFSRreg[8] = LFSRwires8;
+        LFSRreg[9] = LFSRwires9;
+        LFSRreg[10] = LFSRwires10;
+        LFSRreg[11] = LFSRwires11;
+        LFSRreg[12] = LFSRwires12;
+        LFSRreg[13] = LFSRwires13;
+        LFSRreg[14] = LFSRwires14;
+        LFSRreg[15] = LFSRwires15;
+        //$display("LFSRwires = %h %h %h", LFSRwires0, LFSRwires1, LFSRwires2);
+
         if(sampWire == 1) begin
           //MISR
-          for(i = 0; i < 16; i = i + 1) MISRreg[i] = MISRwires[i];
+          
+          MISRreg[0] = MISRwires0;
+          MISRreg[1] = MISRwires1;
+          MISRreg[2] = MISRwires2;
+          MISRreg[3] = MISRwires3;
+          MISRreg[4] = MISRwires4;
+          MISRreg[5] = MISRwires5;
+          MISRreg[6] = MISRwires6;
+          MISRreg[7] = MISRwires7;
+          MISRreg[8] = MISRwires8;
+          MISRreg[9] = MISRwires9;
+          MISRreg[10] = MISRwires10;
+          MISRreg[11] = MISRwires11;
+          MISRreg[12] = MISRwires12;
+          MISRreg[13] = MISRwires13;
+          MISRreg[14] = MISRwires14;
+          MISRreg[15] = MISRwires15;
+
           endReg = endWire + 1;
-          //$display ("endWire value = %d", endWire);
+
+          //$display ("cut_sdo = %h", cut_sdo);
           if(endWire == 2000) begin
-            MISRoutputReg = MISRwires;
+            MISRoutputReg = {MISRwires0, MISRwires1, MISRwires2, MISRwires3, MISRwires4, MISRwires5, MISRwires6, 
+            MISRwires7, MISRwires8, MISRwires9, MISRwires10, MISRwires11, MISRwires12, MISRwires13, MISRwires14, MISRwires15};
             if(firstPassWire == 0) begin 
-              faultFreeReg = MISRoutputWire;
+              #1 faultFreeReg = MISRoutputWire;
               firstPassReg = 1;
             end
             if (MISRoutputWire == faultFreeWire) bistpass_reg = 1;
             else bistpass_reg = 0;
+            //$display ("MISRoutputReg = %h", MISRoutputReg);
+            //$display ("Fault free register value = %h", faultFreeReg);
             bistdone_reg = 1;
+            #1 endReg = 0;
+            #1 MISRoutputReg = 0;
+            #1 sampReg = 0;
+            #1 countReg = 0;
+            #1 for(i = 0; i < 16; i = i + 1) MISRreg[i] = 0;
+            #1 cut_scanmodeReg = 0;
+            //#1 for(i = 0; i < 16; i = i + 1) LFSRreg[i] = 0;
+            //#1 LFSRinitReg = 0;
+            #1 cut_sdi_reg = 0;
+            #1 satReg = 0;
+            $display("end");
+            for(i = 0; i < 16; i = i + 1) $display("LFSRreg = %h", LFSRreg[i]);
+            for(i = 0; i < 16; i = i + 1) $display("MISRreg = %h", MISRreg[i]);
+            $display("cut_sdi = %h", cut_sdi);
+            $display("cut_sdo = %h", cut_sdo);
           end
         end
       end
